@@ -1,0 +1,22 @@
+:root {
+    --madeira-escura: #5D4037;
+    --madeira-media: #8D6E63;
+    --madeira-clara: #D7CCC8;
+    --madeira-claro: #EFEBE9;
+    --cinza-escuro: #2D3748;
+    --cinza-medio: #4A5568;
+}
+* { font-family: 'Inter', sans-serif; }
+.bg-madeira-escura { background-color: var(--madeira-escura); }
+.bg-madeira-media { background-color: var(--madeira-media); }
+.bg-madeira-clara { background-color: var(--madeira-clara); }
+.bg-madeira-claro { background-color: var(--madeira-claro); }
+.text-madeira-escura { color: var(--madeira-escura); }
+.bg-cinza-escuro { background-color: var(--cinza-escuro); }
+.hover-madeira:hover { background-color: var(--madeira-media); }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.tab-active { border-bottom: 3px solid var(--madeira-escura); color: var(--madeira-escura); font-weight: 600; }
+.kanban-column { min-height: 400px; }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
