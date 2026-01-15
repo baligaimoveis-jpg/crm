@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-gray-100 min-h-screen">
+    <!-- Overlay para Mobile -->
+    <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden transition-opacity"></div>
+
     <!-- Loading -->
     <div id="loading" class="fixed inset-0 bg-madeira-escura flex items-center justify-center z-50">
         <div class="text-center">
@@ -18,9 +21,6 @@
     </div>
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Overlay para fechar menu mobile -->
-        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
-        
         <!-- Sidebar -->
         <aside id="sidebar" class="w-64 bg-cinza-escuro text-white flex flex-col transition-all duration-300 transform -translate-x-full lg:translate-x-0 fixed lg:relative h-full z-40">
             <div class="p-4 border-b border-gray-600">
@@ -70,9 +70,9 @@
                         </button>
                     </li>
                     <li>
-                        <button onclick="showSection('entregas')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-700 transition-colors text-gray-300 hover:text-white">
+                        <button onclick="showSection('agenda')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-700 transition-colors text-gray-300 hover:text-white">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span>Entregas</span>
+                            <span>Agenda</span>
                         </button>
                     </li>
                     <li>
@@ -518,91 +518,123 @@
                 </div>
             </section>
 
-            <!-- Entregas Section -->
-            <section id="entregas" class="section hidden p-6 fade-in">
+            <!-- Agenda Section -->
+            <section id="agenda" class="section hidden p-6 fade-in">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Entregas</h2>
-                        <p class="text-gray-500">Logística e agendamentos</p>
+                        <h2 class="text-2xl font-bold text-gray-800">Agenda de Compromissos</h2>
+                        <p class="text-gray-500">Visitas, entregas e montagens</p>
                     </div>
                     <div class="flex gap-2">
-                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            Calendário
-                        </button>
-                        <button onclick="openModal('novaEntrega')" class="bg-madeira-escura text-white px-4 py-2 rounded-lg hover:bg-madeira-media transition-colors flex items-center gap-2">
+                        <div class="flex bg-gray-200 rounded-lg p-1">
+                            <button onclick="mudarVisaoAgenda('mes')" id="btnAgendaMes" class="px-3 py-1.5 rounded-md bg-white shadow-sm text-sm font-medium transition-all">Mês</button>
+                            <button onclick="mudarVisaoAgenda('semana')" id="btnAgendaSemana" class="px-3 py-1.5 rounded-md text-gray-600 text-sm font-medium transition-all">Semana</button>
+                        </div>
+                        <button onclick="openModal('novoCompromisso')" class="bg-madeira-escura text-white px-4 py-2 rounded-lg hover:bg-madeira-media transition-colors flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            Nova Entrega
+                            Novo Compromisso
                         </button>
                     </div>
                 </div>
 
-                <!-- Entregas de Hoje -->
-                <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                        Entregas de Hoje - 10/dez
-                    </h3>
-                    <div class="space-y-3" id="entregasHoje">
-                        <!-- Entregas inseridas via JS -->
+                <!-- Navegação do Calendário -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <button onclick="navegarMes(-1)" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <h3 class="text-xl font-bold text-gray-800" id="tituloMesAno">Dezembro 2024</h3>
+                        <button onclick="navegarMes(1)" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
                     </div>
-                </div>
 
-                <!-- Calendário Semanal -->
-                <div class="bg-white rounded-xl shadow-sm p-5">
-                    <h3 class="font-semibold text-gray-800 mb-4">Agendamentos da Semana</h3>
-                    <div class="grid grid-cols-7 gap-2">
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Seg</p>
-                            <p class="font-semibold">9</p>
+                    <!-- Calendário Mensal -->
+                    <div id="calendarioMensal">
+                        <div class="grid grid-cols-7 gap-1 mb-2">
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Dom</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Seg</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Ter</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Qua</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Qui</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Sex</div>
+                            <div class="text-center py-2 text-sm font-medium text-gray-500">Sáb</div>
                         </div>
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Ter</p>
-                            <p class="font-semibold">10</p>
-                            <div class="mt-1 flex justify-center gap-1">
-                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                            </div>
-                        </div>
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Qua</p>
-                            <p class="font-semibold">11</p>
-                        </div>
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Qui</p>
-                            <p class="font-semibold">12</p>
-                            <div class="mt-1 flex justify-center gap-1">
-                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-                            </div>
-                        </div>
-                        <div class="text-center p-2 bg-yellow-100 rounded-lg border-2 border-yellow-400">
-                            <p class="text-xs text-yellow-600">Sex</p>
-                            <p class="font-semibold text-yellow-600">13</p>
-                            <div class="mt-1 flex justify-center gap-1">
-                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                            </div>
-                        </div>
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Sáb</p>
-                            <p class="font-semibold">14</p>
-                        </div>
-                        <div class="text-center p-2 bg-gray-100 rounded-lg">
-                            <p class="text-xs text-gray-500">Dom</p>
-                            <p class="font-semibold">15</p>
+                        <div class="grid grid-cols-7 gap-1" id="diasCalendario">
+                            <!-- Dias gerados via JS -->
                         </div>
                     </div>
-                    <div class="flex justify-center gap-6 mt-4 text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
-                            <span class="text-gray-600">Carregamento</span>
-                        </div>
+
+                    <!-- Legenda -->
+                    <div class="flex flex-wrap justify-center gap-4 mt-4 pt-4 border-t border-gray-200 text-sm">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
-                            <span class="text-gray-600">Em Trânsito</span>
+                            <span class="text-gray-600">Visita</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                            <span class="text-gray-600">Entrega</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-purple-500 rounded-full"></span>
+                            <span class="text-gray-600">Montagem</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 bg-orange-500 rounded-full"></span>
+                            <span class="text-gray-600">Medição</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                            <span class="text-gray-600">Concluído</span>
+                            <span class="text-gray-600">Reunião</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compromissos do Dia Selecionado -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Lista de Compromissos -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                            <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                                <h3 class="font-semibold text-gray-800" id="tituloCompromissosDia">Compromissos de Hoje</h3>
+                                <span class="bg-madeira-claro text-madeira-escura px-3 py-1 rounded-full text-sm font-medium" id="qtdCompromissosDia">3 compromissos</span>
+                            </div>
+                            <div class="divide-y divide-gray-200" id="listaCompromissos">
+                                <!-- Compromissos inseridos via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Próximos Compromissos -->
+                    <div>
+                        <div class="bg-white rounded-xl shadow-sm p-4">
+                            <h3 class="font-semibold text-gray-800 mb-4">Próximos 7 Dias</h3>
+                            <div class="space-y-3" id="proximosCompromissos">
+                                <!-- Inseridos via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Resumo Rápido -->
+                        <div class="bg-gradient-to-br from-madeira-media to-madeira-escura rounded-xl p-4 mt-4 text-white">
+                            <h4 class="font-medium text-gray-100 mb-3">Resumo do Mês</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-200">Visitas:</span>
+                                    <span class="font-semibold" id="resumoVisitas">5</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-200">Entregas:</span>
+                                    <span class="font-semibold" id="resumoEntregas">8</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-200">Montagens:</span>
+                                    <span class="font-semibold" id="resumoMontagens">4</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-200">Medições:</span>
+                                    <span class="font-semibold" id="resumoMedicoes">3</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -626,32 +658,143 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Projeto</label>
                                 <input type="text" id="calcNome" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="Ex: Armário Cozinha">
                             </div>
+
+                            <!-- Cliente e Funcionário -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Largura (m)</label>
-                                    <input type="number" id="calcLargura" step="0.01" oninput="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                                    <select id="calcCliente" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                                        <option value="">Selecione o cliente...</option>
+                                    </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Altura (m)</label>
-                                    <input type="number" id="calcAltura" step="0.01" oninput="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Profundidade (m)</label>
-                                    <input type="number" id="calcProfundidade" step="0.01" oninput="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Chapa</label>
-                                    <select id="calcTipoChapa" onchange="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
-                                        <option value="80">MDF 15mm - R$ 80/m²</option>
-                                        <option value="120">MDF 18mm - R$ 120/m²</option>
-                                        <option value="150">MDF 25mm - R$ 150/m²</option>
-                                        <option value="200">MDF Naval - R$ 200/m²</option>
-                                        <option value="180">Compensado 15mm - R$ 180/m²</option>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Responsável</label>
+                                    <select id="calcFuncionario" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                                        <option value="">Selecione o funcionário...</option>
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Modo de Cálculo -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Modo de Cálculo</label>
+                                <div class="flex bg-gray-100 rounded-lg p-1">
+                                    <button type="button" onclick="setModoCalculo('medidas')" id="btnModoMedidas" class="flex-1 px-4 py-2 rounded-md bg-white shadow-sm text-sm font-medium transition-all flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                        Por Medidas
+                                    </button>
+                                    <button type="button" onclick="setModoCalculo('m2')" id="btnModoM2" class="flex-1 px-4 py-2 rounded-md text-gray-600 text-sm font-medium transition-all flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z"></path></svg>
+                                        Por m²
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Campos por Medidas -->
+                            <div id="camposMedidas">
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Largura (m)</label>
+                                        <input type="number" id="calcLargura" step="0.01" oninput="calcular()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Altura (m)</label>
+                                        <input type="number" id="calcAltura" step="0.01" oninput="calcular()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Profundidade (m)</label>
+                                        <input type="number" id="calcProfundidade" step="0.01" oninput="calcular()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Campo por M² -->
+                            <div id="camposM2" class="hidden">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Área Total (m²)</label>
+                                    <input type="number" id="calcAreaDireta" step="0.01" oninput="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="Ex: 15.50">
+                                    <p class="text-xs text-gray-500 mt-1">Informe diretamente a metragem quadrada do projeto</p>
+                                </div>
+                            </div>
+
+                            <!-- Tipos de Material (todos opcionais) -->
+                            <div class="space-y-4">
+                                <label class="block text-sm font-medium text-gray-700">Materiais <span class="text-gray-400 font-normal">(preencha apenas o que for usar)</span></label>
+                                
+                                <!-- Opção MDF -->
+                                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-lg">🪵</span>
+                                        <label class="text-sm font-medium text-amber-800">MDF / Chapas</label>
+                                    </div>
+                                    <select id="calcTipoChapa" onchange="calcular()" class="w-full px-4 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+                                        <option value="0">-- Não utilizar --</option>
+                                        <option value="65">MDF Cru 6mm - R$ 65/m²</option>
+                                        <option value="75">MDF Cru 9mm - R$ 75/m²</option>
+                                        <option value="80">MDF Cru 15mm - R$ 80/m²</option>
+                                        <option value="95">MDF Cru 18mm - R$ 95/m²</option>
+                                        <option value="110">MDF Cru 25mm - R$ 110/m²</option>
+                                        <option value="90">MDF Branco 15mm - R$ 90/m²</option>
+                                        <option value="120">MDF Branco 18mm - R$ 120/m²</option>
+                                        <option value="140">MDF Branco 25mm - R$ 140/m²</option>
+                                        <option value="130">MDF Amadeirado 15mm - R$ 130/m²</option>
+                                        <option value="150">MDF Amadeirado 18mm - R$ 150/m²</option>
+                                        <option value="200">MDF Naval 18mm - R$ 200/m²</option>
+                                        <option value="180">Compensado 15mm - R$ 180/m²</option>
+                                        <option value="220">Compensado Naval 18mm - R$ 220/m²</option>
+                                    </select>
+                                </div>
+
+                                <!-- Opção Drywall -->
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-lg">🧱</span>
+                                        <label class="text-sm font-medium text-blue-800">Drywall / Gesso</label>
+                                    </div>
+                                    <select id="calcTipoDrywall" onchange="calcular()" class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white">
+                                        <option value="0">-- Não utilizar --</option>
+                                        <option value="35">Drywall Standard (ST) 9,5mm - R$ 35/m²</option>
+                                        <option value="42">Drywall Standard (ST) 12,5mm - R$ 42/m²</option>
+                                        <option value="55">Drywall Standard (ST) 15mm - R$ 55/m²</option>
+                                        <option value="58">Drywall Resistente à Umidade (RU) 12,5mm - R$ 58/m²</option>
+                                        <option value="72">Drywall Resistente a Fogo (RF) 12,5mm - R$ 72/m²</option>
+                                        <option value="85">Drywall Resistente a Fogo (RF) 15mm - R$ 85/m²</option>
+                                        <option value="95">Drywall Acústico 12,5mm - R$ 95/m²</option>
+                                    </select>
+                                    <p class="text-xs text-blue-600 mt-1">💡 ST: Padrão | RU: Áreas úmidas | RF: Resistente ao fogo</p>
+                                </div>
+
+                                <!-- Opção Estrutura -->
+                                <div class="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-lg">🔩</span>
+                                        <label class="text-sm font-medium text-gray-800">Estrutura / Perfis</label>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <select id="calcTipoEstrutura" onchange="calcular()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white text-sm">
+                                                <option value="0">-- Não utilizar --</option>
+                                                <option value="18">Perfil Montante 48mm - R$ 18/m</option>
+                                                <option value="22">Perfil Montante 70mm - R$ 22/m</option>
+                                                <option value="28">Perfil Montante 90mm - R$ 28/m</option>
+                                                <option value="15">Perfil Guia 48mm - R$ 15/m</option>
+                                                <option value="19">Perfil Guia 70mm - R$ 19/m</option>
+                                                <option value="25">Perfil Guia 90mm - R$ 25/m</option>
+                                                <option value="35">Perfil Canaleta 40mm - R$ 35/m</option>
+                                                <option value="45">Metalon 20x20mm - R$ 45/m</option>
+                                                <option value="55">Metalon 30x30mm - R$ 55/m</option>
+                                                <option value="75">Metalon 40x40mm - R$ 75/m</option>
+                                                <option value="95">Metalon 50x50mm - R$ 95/m</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <input type="number" id="calcQtdEstrutura" value="0" min="0" oninput="calcular()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 text-sm" placeholder="Qtd barras">
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">💡 Informe o tipo e a quantidade de barras/perfis</p>
+                                </div>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Porcentagem de Perda (%)</label>
                                 <input type="number" id="calcPerda" value="10" oninput="calcular()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
@@ -703,6 +846,10 @@
                                     <span>Custo Mão de Obra:</span>
                                     <span id="resCustoMO">R$ 0,00</span>
                                 </div>
+                                <div class="flex justify-between text-sm text-green-600 mt-1 font-medium">
+                                    <span>Lucro (<span id="resMargemPctDisplay">40%</span>):</span>
+                                    <span id="resMargemValorDisplay">R$ 0,00</span>
+                                </div>
                                 <div class="border-t border-gray-300 my-2 pt-2">
                                     <div class="flex justify-between font-semibold text-gray-800">
                                         <span>Custo Total:</span>
@@ -717,9 +864,13 @@
                                 <p class="text-sm text-madeira-media mt-1">Lucro: <span id="resLucro">R$ 0,00</span></p>
                             </div>
                             
-                            <button onclick="salvarCalculo()" class="w-full py-3 bg-madeira-escura text-white rounded-lg hover:bg-madeira-media transition-colors font-medium">
-                                Salvar como Orçamento
-                            </button>
+                            <div class="space-y-3">
+                                <button onclick="gerarOSdaCalculadora()" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Gerar OS Oficial
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 text-center mt-2">Rascunho: salva para continuar depois | OS Oficial: gera documento para cliente</p>
                         </div>
                     </div>
                 </div>
@@ -733,9 +884,82 @@
                         <p class="text-gray-500">Ordens de Serviço para produção</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="openModal('novaOS')" class="bg-madeira-escura text-white px-4 py-2 rounded-lg hover:bg-madeira-media transition-colors flex items-center gap-2">
+                        <button onclick="novaOS()" class="bg-madeira-escura text-white px-4 py-2 rounded-lg hover:bg-madeira-media transition-colors flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                             Nova OS
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mini Dashboard de OS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="dashboardOS">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-blue-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-medium">Total de OS</p>
+                                <p class="text-2xl font-bold text-gray-800" id="osTotalCount">0</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-yellow-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-medium">Pendentes</p>
+                                <p class="text-2xl font-bold text-yellow-600" id="osPendenteCount">0</p>
+                            </div>
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-medium">Em Produção</p>
+                                <p class="text-2xl font-bold text-purple-600" id="osProducaoCount">0</p>
+                            </div>
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm border-l-4 border-green-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-medium">Valor Total</p>
+                                <p class="text-2xl font-bold text-green-600" id="osValorTotal">R$ 0</p>
+                            </div>
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                    <div class="flex flex-wrap items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                            <span class="text-sm font-medium text-gray-600">Filtros:</span>
+                        </div>
+                        <select id="filtroOsStatus" onchange="filtrarOS()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                            <option value="">Todos os Status</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="aprovado">Aprovado</option>
+                            <option value="em_producao">Em Produção</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                        <select id="filtroOsCliente" onchange="filtrarOS()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                            <option value="">Todos os Clientes</option>
+                        </select>
+                        <input type="text" id="filtroOsBusca" onkeyup="filtrarOS()" placeholder="Buscar por número ou título..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-madeira-media w-64">
+                        <button onclick="limparFiltrosOS()" class="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            Limpar
                         </button>
                     </div>
                 </div>
@@ -743,10 +967,11 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Lista de OS -->
                     <div class="lg:col-span-1 bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="p-4 border-b border-gray-200">
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                             <h3 class="font-semibold text-gray-800">Ordens de Serviço</h3>
+                            <span class="text-xs text-gray-500" id="osCountLabel">0 encontradas</span>
                         </div>
-                        <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto" id="listaOS">
+                        <div class="divide-y divide-gray-200 max-h-[500px] overflow-y-auto" id="listaOS">
                             <!-- OS inseridas via JS -->
                         </div>
                     </div>
@@ -1470,103 +1695,278 @@
         </div>
     </div>
 
-    <!-- Modal Nova Entrega -->
-    <div id="modalNovaEntrega" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-md w-full">
+    <!-- Modal Novo Compromisso -->
+    <div id="modalNovoCompromisso" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-800">Nova Entrega</h3>
-                <button onclick="closeModal('novaEntrega')" class="text-gray-500 hover:text-gray-700">
+                <h3 class="text-xl font-bold text-gray-800">Novo Compromisso</h3>
+                <button onclick="closeModal('novoCompromisso')" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             <form class="p-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Projeto</label>
-                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
-                        <option>Selecione o projeto</option>
-                        <option>Armário Copa - Casa Silva</option>
-                        <option>Roupeiro 4 portas - apt 32</option>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Compromisso</label>
+                    <select id="inpCompTipo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                        <option value="visita">🔵 Visita ao Cliente</option>
+                        <option value="entrega">🟢 Entrega de Móvel</option>
+                        <option value="montagem">🟣 Montagem</option>
+                        <option value="medicao">🟠 Medição</option>
+                        <option value="reuniao">🔴 Reunião</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Data da Entrega</label>
-                    <input type="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                    <input type="text" id="inpCompTitulo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="Ex: Visita para aprovação de projeto">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Endereço de Entrega</label>
-                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                    <select id="inpCompCliente" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                        <option value="">Selecione o cliente</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="inpCompData" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                        <input type="time" id="inpCompHora" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                    <input type="text" id="inpCompEndereco" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="Endereço do compromisso">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Projeto Vinculado (opcional)</label>
+                    <select id="inpCompProjeto" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                        <option value="">Nenhum projeto</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Observações</label>
-                    <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" rows="2"></textarea>
+                    <textarea id="inpCompObs" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" rows="2" placeholder="Detalhes adicionais..."></textarea>
                 </div>
                 <div class="flex justify-end gap-3 pt-4">
-                    <button type="button" onclick="closeModal('novaEntrega')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
-                    <button type="button" onclick="closeModal('novaEntrega')" class="px-4 py-2 bg-madeira-escura text-white rounded-lg hover:bg-madeira-media transition-colors">Agendar</button>
+                    <button type="button" onclick="closeModal('novoCompromisso')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
+                    <button type="button" onclick="salvarCompromisso()" class="px-4 py-2 bg-madeira-escura text-white rounded-lg hover:bg-madeira-media transition-colors">Agendar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Nova OS -->
+    <!-- Modal Nova OS (Completa) -->
     <div id="modalNovaOS" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-800">Nova Ordem de Serviço</h3>
+        <div class="bg-white rounded-xl max-w-5xl w-full max-h-[95vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-xl">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Nova Ordem de Serviço</h3>
+                    <p class="text-sm text-gray-500">Gerar documento oficial e ordem de produção</p>
+                </div>
                 <button onclick="closeModal('novaOS')" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <form class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
+            <form class="p-6 space-y-6">
+                <!-- Cabeçalho OS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Número OS</label>
-                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" value="OS-2024-157" readonly>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Título da OS</label>
+                        <input type="text" id="inpOsTitulo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media" placeholder="Ex: Armário Cozinha">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Projeto Vinculado</label>
-                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
-                            <option>Selecione...</option>
-                            <option>Armário Copa - Casa Silva</option>
-                            <option>Roupeiro 4 portas</option>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+                        <select id="inpOsCliente" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Profissional Responsável</label>
+                        <select id="inpOsResponsavel" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                            <option value="">Selecione...</option>
                         </select>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Máquina</label>
-                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
-                        <option>Seccionadora SCM</option>
-                        <option>Fresadora CNC</option>
-                        <option>Serra de Fita</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Peças para Corte</label>
-                    <div class="border border-gray-300 rounded-lg p-4 space-y-3">
-                        <div class="grid grid-cols-5 gap-2 text-sm font-medium text-gray-600">
-                            <span>Peça</span>
-                            <span>Alt x Larg (mm)</span>
-                            <span>Qtd</span>
-                            <span>Borda</span>
-                            <span></span>
-                        </div>
-                        <div class="grid grid-cols-5 gap-2">
-                            <input type="text" placeholder="Nome" class="px-2 py-1 border rounded">
-                            <input type="text" placeholder="600 x 400" class="px-2 py-1 border rounded">
-                            <input type="number" placeholder="2" class="px-2 py-1 border rounded">
-                            <select class="px-2 py-1 border rounded">
-                                <option>PP</option>
-                                <option>2B</option>
-                                <option>4B</option>
-                            </select>
-                            <button type="button" class="text-red-500 hover:text-red-700">×</button>
-                        </div>
-                        <button type="button" class="text-sm text-madeira-escura hover:underline">+ Adicionar Peça</button>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Data de Abertura</label>
+                        <input type="date" id="inpOsData" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Previsão de Entrega</label>
+                        <input type="date" id="inpOsEntrega" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select id="inpOsStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media">
+                            <option value="pendente">Pendente</option>
+                            <option value="aprovado">Aprovado</option>
+                            <option value="em_producao">Em Produção</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
                     </div>
                 </div>
-                <div class="flex justify-end gap-3 pt-4">
+
+                <!-- Lista de Itens (Materiais e Serviços) com Subtotal -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Itens da Ordem de Serviço</label>
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <!-- Cabeçalho da Tabela -->
+                        <div class="grid grid-cols-14 gap-2 mb-2 text-xs font-semibold text-gray-500 uppercase bg-gray-100 p-2 rounded">
+                            <div class="col-span-2">Tipo</div>
+                            <div class="col-span-5">Descrição</div>
+                            <div class="col-span-2 text-center">Qtd</div>
+                            <div class="col-span-2 text-center">Valor Unit.</div>
+                            <div class="col-span-2 text-right">Subtotal</div>
+                            <div class="col-span-1"></div>
+                        </div>
+                        <div id="listaItensOS" class="space-y-2 mb-3">
+                            <!-- Linha de Item Dinâmica com Subtotal -->
+                            <div class="grid grid-cols-14 gap-2 item-os-row items-center bg-white p-2 rounded border border-gray-100">
+                                <div class="col-span-2">
+                                    <select class="w-full p-2 border rounded text-sm tipo-item focus:ring-2 focus:ring-madeira-media focus:outline-none">
+                                        <option value="material">📦 Material</option>
+                                        <option value="servico">🔧 Serviço</option>
+                                        <option value="mao_obra">👷 Mão de Obra</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-5">
+                                    <input type="text" class="w-full p-2 border rounded text-sm desc-item focus:ring-2 focus:ring-madeira-media focus:outline-none" placeholder="Descrição do item">
+                                </div>
+                                <div class="col-span-2">
+                                    <input type="number" class="w-full p-2 border rounded text-sm text-center qtd-item focus:ring-2 focus:ring-madeira-media focus:outline-none" placeholder="0" min="0" oninput="calcularTotalOS()">
+                                </div>
+                                <div class="col-span-2">
+                                    <input type="number" class="w-full p-2 border rounded text-sm text-center val-item focus:ring-2 focus:ring-madeira-media focus:outline-none" placeholder="0.00" min="0" step="0.01" oninput="calcularTotalOS()">
+                                </div>
+                                <div class="col-span-2 text-right">
+                                    <span class="subtotal-item font-semibold text-gray-800">R$ 0,00</span>
+                                </div>
+                                <div class="col-span-1 flex justify-center">
+                                    <button type="button" onclick="removerItemOS(this)" class="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" onclick="adicionarItemOS()" class="text-sm text-madeira-escura hover:underline font-medium flex items-center gap-1 mt-2 px-2 py-1 hover:bg-madeira-claro rounded transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Adicionar Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resumo Financeiro -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Resumo de Valores -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-5">
+                        <h4 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            Resumo Financeiro
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                <span class="text-gray-600">Materiais:</span>
+                                <span id="totalMateriais" class="font-semibold text-gray-800">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                <span class="text-gray-600">Serviços/Mão de Obra:</span>
+                                <span id="totalServicos" class="font-semibold text-gray-800">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-gray-600">Desconto no Pix:</span>
+                                    <input type="number" id="inpOsDesconto" class="w-16 p-1 border rounded text-sm text-center focus:ring-2 focus:ring-madeira-media focus:outline-none" placeholder="0" min="0" max="100" value="0" oninput="calcularTotalOS()">
+                                    <span class="text-gray-500">%</span>
+                                </div>
+                                <span id="valorDesconto" class="font-semibold text-red-600">- R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 bg-green-100 rounded-lg px-3 mt-2">
+                                <span class="font-bold text-green-800 text-lg">VALOR TOTAL:</span>
+                                <span id="totalOSDisplay" class="text-2xl font-bold text-green-800">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Condições de Pagamento e Entrega -->
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                            <h4 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                Condições de Pagamento
+                            </h4>
+                            <select id="inpOsCondicao" class="w-full p-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none bg-white">
+                                <option value="avista">À vista (5% desconto)</option>
+                                <option value="50_50" selected>50% entrada + 50% na entrega</option>
+                                <option value="30_70">30% entrada + 70% na entrega</option>
+                                <option value="30_30_40">30% entrada + 30% produção + 40% entrega</option>
+                                <option value="40_30_30">40% entrada + 30% produção + 30% entrega</option>
+                                <option value="3x">3x sem juros</option>
+                                <option value="6x">6x sem juros</option>
+                                <option value="10x">10x com juros (2,5% a.m.)</option>
+                                <option value="personalizado">Personalizado</option>
+                            </select>
+                            <input type="text" id="inpOsCondicaoPersonalizado" class="w-full p-2 border border-blue-300 rounded-lg text-sm mt-2 hidden focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="Descreva a condição personalizada...">
+                        </div>
+
+                        <div class="bg-orange-50 border border-orange-200 rounded-xl p-5">
+                            <h4 class="font-semibold text-orange-800 mb-3 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Prazo de Entrega
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="inpOsPrazo" class="w-20 p-2 border border-orange-300 rounded-lg text-sm text-center focus:ring-2 focus:ring-orange-400 focus:outline-none" placeholder="25" value="25" min="1">
+                                <span class="text-orange-700">dias úteis</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Garantia e Observações -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-5">
+                        <h4 class="font-semibold text-purple-800 mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            Garantia
+                        </h4>
+                        <select id="inpOsGarantia" class="w-full p-2 border border-purple-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none bg-white">
+                            <option value="6">6 meses contra defeitos de fabricação</option>
+                            <option value="12" selected>12 meses contra defeitos de fabricação</option>
+                            <option value="24">24 meses contra defeitos de fabricação</option>
+                            <option value="36">36 meses (garantia estendida)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Observações Adicionais</label>
+                        <textarea id="inpOsObs" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-madeira-media h-24" placeholder="Detalhes técnicos, observações especiais, restrições de acesso, etc..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Termos e Condições -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="inpOsTermos" class="mt-1 w-4 h-4 text-madeira-escura border-gray-300 rounded focus:ring-madeira-media">
+                        <span class="text-sm text-gray-600">
+                            <strong>Termos:</strong> Este orçamento é válido por 15 dias. Valores podem sofrer alteração em caso de modificações no projeto. 
+                            A montagem será agendada após confirmação do pagamento da entrada. Não nos responsabilizamos por avarias causadas por uso inadequado.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <button type="button" onclick="closeModal('novaOS')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
-                    <button type="button" onclick="closeModal('novaOS')" class="px-4 py-2 bg-madeira-escura text-white rounded-lg hover:bg-madeira-media transition-colors">Criar OS</button>
+                    <button type="button" onclick="visualizarOS()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        Pré-visualizar
+                    </button>
+                    <button type="button" onclick="salvarOS()" class="px-4 py-2 bg-madeira-escura text-white rounded-lg hover:bg-madeira-media transition-colors flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Gerar OS
+                    </button>
                 </div>
             </form>
         </div>

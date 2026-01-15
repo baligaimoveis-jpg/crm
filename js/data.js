@@ -90,15 +90,58 @@ let clientes = [
     { id: 4, nome: 'Ana Pereira', telefone: '(11) 96666-5555', endereco: 'Av. Brasil, 321 - SP', projetos: 1, email: 'ana@email.com', preferencias: 'Cores vibrantes, design moderno' },
 ];
 
-let entregasHoje = [
-    { projeto: 'Armário Copa - Casa Silva', cliente: 'Carlos Silva', endereco: 'Rua das Flores, 123', status: 'carregamento', hora: '08:00' },
-    { projeto: 'Mesa de Jantar 8 lugares', cliente: 'José Oliveira', endereco: 'Rua XV, 789', status: 'em_transito', hora: '10:30' },
+let compromissos = [
+    { id: 1, tipo: 'visita', titulo: 'Visita para aprovação de projeto', clienteId: 1, cliente: 'Carlos Silva', data: '2024-12-10', hora: '09:00', endereco: 'Rua das Flores, 123 - SP', projetoId: 'PRJ-001', status: 'pendente', obs: 'Levar amostras de MDF' },
+    { id: 2, tipo: 'entrega', titulo: 'Entrega Armário Copa', clienteId: 1, cliente: 'Carlos Silva', data: '2024-12-10', hora: '14:00', endereco: 'Rua das Flores, 123 - SP', projetoId: 'PRJ-001', status: 'pendente', obs: 'Confirmar presença do cliente' },
+    { id: 3, tipo: 'montagem', titulo: 'Montagem Roupeiro', clienteId: 2, cliente: 'Maria Santos', data: '2024-12-10', hora: '08:00', endereco: 'Av. Paulista, 456 - SP', projetoId: 'PRJ-002', status: 'em_andamento', obs: 'Equipe: João e Pedro' },
+    { id: 4, tipo: 'medicao', titulo: 'Medição cozinha planejada', clienteId: 4, cliente: 'Ana Pereira', data: '2024-12-12', hora: '10:00', endereco: 'Av. Brasil, 321 - SP', projetoId: null, status: 'pendente', obs: 'Novo projeto' },
+    { id: 5, tipo: 'entrega', titulo: 'Entrega Mesa de Jantar', clienteId: 3, cliente: 'José Oliveira', data: '2024-12-12', hora: '15:00', endereco: 'Rua XV, 789 - SP', projetoId: 'PRJ-003', status: 'pendente', obs: '' },
+    { id: 6, tipo: 'visita', titulo: 'Visita comercial - novo cliente', clienteId: null, cliente: 'Novo Cliente', data: '2024-12-13', hora: '11:00', endereco: 'Rua Augusta, 1500 - SP', projetoId: null, status: 'pendente', obs: 'Indicação do Sr. Carlos' },
+    { id: 7, tipo: 'reuniao', titulo: 'Reunião com fornecedor MDF', clienteId: null, cliente: 'Fornecedor MDF SP', data: '2024-12-15', hora: '14:00', endereco: 'Escritório', projetoId: null, status: 'pendente', obs: 'Negociar preços 2025' },
+    { id: 8, tipo: 'montagem', titulo: 'Montagem Cozinha Americana', clienteId: 5, cliente: 'Roberto Costa', data: '2024-12-18', hora: '08:00', endereco: 'Rua das Palmeiras, 200 - SP', projetoId: 'PRJ-005', status: 'pendente', obs: 'Montagem de 2 dias' },
+    { id: 9, tipo: 'entrega', titulo: 'Entrega Estante', clienteId: 4, cliente: 'Ana Pereira', data: '2024-12-20', hora: '10:00', endereco: 'Av. Brasil, 321 - SP', projetoId: 'PRJ-004', status: 'pendente', obs: '' },
+    { id: 10, tipo: 'visita', titulo: 'Visita pós-venda', clienteId: 3, cliente: 'José Oliveira', data: '2024-12-22', hora: '16:00', endereco: 'Rua XV, 789 - SP', projetoId: 'PRJ-003', status: 'pendente', obs: 'Verificar satisfação' },
 ];
 
+let mesAtualAgenda = 11; // Dezembro (0-indexed)
+let anoAtualAgenda = 2024;
+let diaSelecionadoAgenda = new Date().getDate();
+
 let ordensServico = [
-    { id: 'OS-2024-156', projeto: 'Armário Copa - Casa Silva', maquina: 'Seccionadora SCM', status: 'em_producao', data: '10/12/2024' },
-    { id: 'OS-2024-155', projeto: 'Roupeiro 4 portas', maquina: 'CNC Router', status: 'pendente', data: '11/12/2024' },
-    { id: 'OS-2024-154', projeto: 'Mesa de Jantar', maquina: 'Seccionadora SCM', status: 'concluido', data: '08/12/2024' },
+    { 
+        id: 'OS-2024-156', 
+        clienteId: 1, 
+        projetoId: 'PRJ-001', 
+        responsavelId: 1, // ID do funcionário
+        titulo: 'Armário Copa - Produção e Instalação',
+        status: 'em_producao', 
+        dataAbertura: '10/12/2024',
+        previsaoEntrega: '20/12/2024',
+        itens: [
+            { tipo: 'material', descricao: 'MDF 15mm Branco (3 chapas)', qtd: 3, valorUnitario: 250, total: 750 },
+            { tipo: 'material', descricao: 'Dobradiças (20 un)', qtd: 20, valorUnitario: 15, total: 300 },
+            { tipo: 'servico', descricao: 'Corte e Usinagem', qtd: 8, valorUnitario: 45, total: 360 },
+            { tipo: 'mao_obra', descricao: 'Instalação no Cliente', qtd: 1, valorUnitario: 400, total: 400 }
+        ],
+        total: 1810,
+        observacoes: 'Cliente solicitou reforço nas prateleiras superiores.'
+    },
+    { 
+        id: 'OS-2024-155', 
+        clienteId: 2, 
+        projetoId: 'PRJ-002', 
+        responsavelId: 2,
+        titulo: 'Roupeiro 4 Portas',
+        status: 'pendente', 
+        dataAbertura: '11/12/2024',
+        previsaoEntrega: '22/12/2024',
+        itens: [
+            { tipo: 'material', descricao: 'MDF 18mm Imbuia (5 chapas)', qtd: 5, valorUnitario: 320, total: 1600 },
+            { tipo: 'servico', descricao: 'Montagem Interna', qtd: 1, valorUnitario: 500, total: 500 }
+        ],
+        total: 2100,
+        observacoes: 'Aguardando chegada dos puxadores especiais.'
+    }
 ];
 
 let pecasCorte = [
