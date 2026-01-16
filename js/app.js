@@ -1615,6 +1615,35 @@ function getStatusOSText(status) {
 
 // Calculadora - Variáveis de controle
 let modoCalculoAtual = 'medidas'; // 'medidas' ou 'm2'
+let modoPerdaAtual = 'pct'; // 'pct' ou 'fator'
+
+// Função para alternar entre Porcentagem e Multiplicador
+function setModoPerda(modo) {
+    modoPerdaAtual = modo;
+    
+    const btnPct = document.getElementById('btnPerdaPct');
+    const btnFator = document.getElementById('btnPerdaFator');
+    const divPct = document.getElementById('divInputPerdaPct');
+    const divFator = document.getElementById('divInputPerdaFator');
+    
+    if (modo === 'pct') {
+        btnPct.classList.add('bg-white', 'shadow-sm');
+        btnPct.classList.remove('text-gray-600');
+        btnFator.classList.remove('bg-white', 'shadow-sm');
+        btnFator.classList.add('text-gray-600');
+        divPct.classList.remove('hidden');
+        divFator.classList.add('hidden');
+    } else {
+        btnFator.classList.add('bg-white', 'shadow-sm');
+        btnFator.classList.remove('text-gray-600');
+        btnPct.classList.remove('bg-white', 'shadow-sm');
+        btnPct.classList.add('text-gray-600');
+        divPct.classList.add('hidden');
+        divFator.classList.remove('hidden');
+    }
+    
+    calcular();
+}
 
 function setModoCalculo(modo) {
     modoCalculoAtual = modo;
@@ -1646,7 +1675,6 @@ function setModoCalculo(modo) {
 
 function calcular() {
     // Obter valores comuns
-    const perda = parseFloat(document.getElementById('calcPerda').value) || 0;
     const custoFerragens = parseFloat(document.getElementById('calcFerragens').value) || 0;
     const horas = parseFloat(document.getElementById('calcHoras').value) || 0;
     const valorHora = parseFloat(document.getElementById('calcValorHora').value) || 0;
@@ -1666,7 +1694,20 @@ function calcular() {
         area = parseFloat(document.getElementById('calcAreaDireta').value) || 0;
     }
     
-    const areaComPerda = area * (1 + perda / 100);
+    // Obter perda ou fator multiplicador
+    let perda = 0;
+    let fatorMultiplicador = 1;
+    
+    if (modoPerdaAtual === 'pct') {
+        perda = parseFloat(document.getElementById('calcPerda').value) || 0;
+        fatorMultiplicador = 1 + (perda / 100);
+    } else {
+        fatorMultiplicador = parseFloat(document.getElementById('calcFator').value) || 1;
+        // Converter fator em porcentagem equivalente para exibição
+        perda = (fatorMultiplicador - 1) * 100;
+    }
+    
+    const areaComPerda = area * (modoPerdaAtual === 'pct' ? (1 + perda / 100) : 1);
     
     // Calcular custo de TODOS os materiais selecionados
     let custoMDF = 0;
@@ -1676,20 +1717,33 @@ function calcular() {
     // MDF (se selecionado)
     const valorMDF = parseFloat(document.getElementById('calcTipoChapa').value) || 0;
     if (valorMDF > 0) {
-        custoMDF = areaComPerda * valorMDF;
+        if (modoPerdaAtual === 'pct') {
+            custoMDF = areaComPerda * valorMDF;
+        } else {
+            // No modo multiplicador, aplica o fator ao custo final
+            custoMDF = area * valorMDF * fatorMultiplicador;
+        }
     }
     
     // Drywall (se selecionado)
     const valorDrywall = parseFloat(document.getElementById('calcTipoDrywall').value) || 0;
     if (valorDrywall > 0) {
-        custoDrywall = areaComPerda * valorDrywall;
+        if (modoPerdaAtual === 'pct') {
+            custoDrywall = areaComPerda * valorDrywall;
+        } else {
+            custoDrywall = area * valorDrywall * fatorMultiplicador;
+        }
     }
     
     // Estrutura (se selecionado)
     const valorEstrutura = parseFloat(document.getElementById('calcTipoEstrutura').value) || 0;
     const qtdEstrutura = parseFloat(document.getElementById('calcQtdEstrutura').value) || 0;
     if (valorEstrutura > 0 && qtdEstrutura > 0) {
-        custoEstrutura = valorEstrutura * qtdEstrutura * (1 + perda / 100);
+        if (modoPerdaAtual === 'pct') {
+            custoEstrutura = valorEstrutura * qtdEstrutura * (1 + perda / 100);
+        } else {
+            custoEstrutura = valorEstrutura * qtdEstrutura * fatorMultiplicador;
+        }
     }
     
     // Soma total dos materiais
@@ -1702,7 +1756,14 @@ function calcular() {
 
     // Atualizar resultados
     document.getElementById('resArea').textContent = area.toFixed(2) + ' m²';
-    document.getElementById('resAreaPerda').textContent = areaComPerda.toFixed(2) + ' m²';
+    
+    // Mostrar área com perda ou fator aplicado
+    if (modoPerdaAtual === 'pct') {
+        document.getElementById('resAreaPerda').textContent = areaComPerda.toFixed(2) + ' m² (+' + perda + '%)';
+    } else {
+        document.getElementById('resAreaPerda').textContent = area.toFixed(2) + ' m² (×' + fatorMultiplicador + ')';
+    }
+    
     document.getElementById('resCustoMaterial').textContent = 'R$ ' + custoMaterial.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     document.getElementById('resCustoMO').textContent = 'R$ ' + custoMO.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     
